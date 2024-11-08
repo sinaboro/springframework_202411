@@ -1,0 +1,8 @@
+package com.mbc.controller;
+
+public interface BoardMapper {
+	
+	public int insertWrite(BoardDTO dto);
+	
+	public BoardDTO selectOne(String id);
+}
