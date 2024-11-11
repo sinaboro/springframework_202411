@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.zerock.domain.BoardVO;
+import org.zerock.domain.Criterial;
 
 @Service
 public interface BoardService {
@@ -16,5 +17,9 @@ public interface BoardService {
 	
 	public boolean remove(Long bno);
 	
-	public List<BoardVO> getList();
+//	public List<BoardVO> getList();
+	
+	public List<BoardVO> getList(Criterial cri);
+	
+	public int getTotal(Criterial cri);
 }

@@ -1,0 +1,23 @@
+package org.zerock.domain;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+@Getter
+@Setter
+@ToString
+public class Criterial {
+
+	private int pageNum;  //페이지 번호
+	private int amount;   // 화면당 레코드 갯수
+	
+	public Criterial() {
+		this(2, 10);
+	}
+	
+	public Criterial(int pageNum, int amount) {
+		this.amount = amount;
+		this.pageNum = pageNum;
+	}
+}

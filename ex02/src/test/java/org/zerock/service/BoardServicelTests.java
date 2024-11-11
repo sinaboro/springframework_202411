@@ -45,7 +45,7 @@ public class BoardServicelTests {
 //		List<BoardVO> list = service.getList();
 //		list.forEach(vo -> log.info(vo));
 
-		service.getList().forEach(vo -> log.info(vo));
+//		service.getList().forEach(vo -> log.info(vo));
 	}
 	
 	@Test
