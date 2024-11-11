@@ -5,10 +5,9 @@
   
 <mapper namespace="org.zerock.mapper.BoardMapper">
   
-  
   <sql id="criteria">
-  	<trim suffix="and">
-  		<foreach collection="typeArr" item="type" separator="or" open="( " close=")">
+  	<trim  prefix="(" suffix=") and">
+  		<foreach collection="typeArr" item="type" separator="or">
   			<if test="type=='T'.toString()">
   				title like '%'|| #{keyword} ||'%' 
   			</if>  			

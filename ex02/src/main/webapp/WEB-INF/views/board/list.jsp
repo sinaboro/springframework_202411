@@ -162,16 +162,14 @@
 		
 		//
 		$(".move").on("click", function(e){
-				
-				e.preventDefault();				
-				actionForm.append("<input type='hidden' name='bno' value='"+$(this).attr("href")+"'>");
-				actionForm.attr("action", "/board/get").submit();
-				
-				
+			e.preventDefault();				
+			actionForm.append("<input type='hidden' name='bno' value='"+$(this).attr("href")+"'>");
+			actionForm.attr("action", "/board/get").submit();
 		});
 		
 		let searchForm = $("#searchForm");
 		$("#searchForm button").on("click", function(e){
+		
 			if(!searchForm.find("option:selected").val()){
 				alert("검색 종류를 선택하세요");
 				return false;
