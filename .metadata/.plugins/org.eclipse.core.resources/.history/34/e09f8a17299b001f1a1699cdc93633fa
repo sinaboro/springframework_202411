@@ -1,6 +1,0 @@
-package com.mbc.controller;
-
-public interface BoardMapper {
-	
-	public int insertWrite(BoardDTO dto);
-}

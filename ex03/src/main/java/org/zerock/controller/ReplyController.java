@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.zerock.domain.Criterial;
+import org.zerock.domain.ReplyPageDTO;
 import org.zerock.domain.ReplyVO;
 import org.zerock.service.ReplyService;
 
@@ -53,16 +54,17 @@ public class ReplyController {
 	//http://localhost:8080/replies/pages/18/1  => reply테이블에서 bno가 18번 전체 레코드 중 1page 해당하는 10개 가져와라.
 	@GetMapping(value = "/pages/{bno}/{page}", 
 			produces = {MediaType.APPLICATION_JSON_VALUE})
-	public ResponseEntity<List<ReplyVO>> getList(
+	public ResponseEntity<ReplyPageDTO> getList(
 			@PathVariable("bno") Long bno, @PathVariable("page") int page 
 			){
 		
 		log.info("getList........bno : " + bno + ",page: " + page);
 		Criterial cri = new Criterial(page, 10);
 		
-		List<ReplyVO> list = service.getList(cri, bno);
+//		List<ReplyVO> list = service.getList(cri, bno);
+		ReplyPageDTO list = service.getListPage(cri, bno);
 		
-		return new ResponseEntity<List<ReplyVO>>(list, HttpStatus.OK);
+		return new ResponseEntity<ReplyPageDTO>(list, HttpStatus.OK);
 	}
 	
 	//http://localhost:8080/replies/34 --> rno:34삭제

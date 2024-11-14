@@ -11,6 +11,7 @@
     </div>
     <!-- /.col-lg-12 -->
 </div>
+
 <!-- /.row -->
 <div class="row">
     <div class="col-lg-12">
@@ -49,6 +50,263 @@
     </div>
     <!-- /.col-lg-12 -->
 </div> <!-- end row -->           
+
+<!-- 댓글 처리 -->
+<!-- /.row -->
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+            	<i class="fa fa-comments fa-fw"></i> Reply
+            	<button id='addReplyBtn' class="btn btn-primary btn-xs pull-right">
+            		New Reply
+            	</button>
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+               <ul class="chat">
+               		<!-- <li class="left clearfix" data-rno='12'>
+               			<div class="header">
+               				<strong class="primary-font">user00</strong>
+               				<small class="pull-right text-muted">2024-11-14</small>
+               			</div>
+               			<p>Good Job!!</p>
+               		</li> -->
+               </ul>
+            </div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+    </div>
+    <!-- /.col-lg-12 -->
+</div> <!-- end row -->   
+<!-- / 댓글 처리 -->
+
+<!-- modal start -->
+<div id="myModal" class="modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">REPLY MODAL</h5>      
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+        	<label>Reply</label>
+        	<input class="form-control" name="reply", value="New Reply!">
+        </div>
+        <div class="form-group">
+        	<label>Replyer</label>
+        	<input class="form-control" name="replyer", value="New Replyer!">
+        </div>
+        <div class="form-group">
+        	<label>Reply UpdateDate</label>
+        	<input class="form-control" name="updateDate", value="">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="modalModBtn">Modify</button>
+        <button type="button" class="btn btn-danger" id="modalRemoveBtn">Remove</button>
+        <button type="button" class="btn btn-info" id="modalRegisterBtn">Register</button>
+        <button type="button" class="btn btn-default"  id="modalCloseBtn" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- modal end -->
+
+<script src="/resources/js/reply.js"></script>
+
+<style>
+	.chat>li:hover {
+		cursor:pointer
+	}
+</style>
+<script>
+	$(document).ready(function(){
+		console.log("---------------------------");
+		console.log("JS TEST");
+		
+		let bnoValue = '<c:out value="${board.bno}"/>';
+		
+		let replyUL = $(".chat");
+		
+		showList(1);
+		
+		function showList(page) {
+			replyService.getList(
+					
+				{ bno:bnoValue, page:page||1 },
+				
+				function(list){
+				
+					let str= "";
+					
+					if(list== null || list.length == 0){
+						replyUL.html("");
+						return;
+					}
+					
+					for(let i=0, len=list.length || 0 ; i<len; i++){
+						str+= "<li class='left clearfix' data-rno='"+list[i].rno+"'>";
+						str+= "<div class='header'>";
+						str+= "<strong class='primary-font'>"+list[i].replyer+"</strong>";
+						str+= "<small class='pull-right text-muted'>"+
+								replyService.displayTime(list[i].updateDate)+"</small>";
+						str+= "</div>";
+						str+= "<p>"+list[i].reply+"</p>";
+						str+= "</li>";
+					}
+					
+					replyUL.html(str);
+				}
+			)
+		} // end showList
+		
+		let modal = $("#myModal");
+		let modalInputReply = modal.find("input[name='reply']");
+		let modalInputReplyer = modal.find("input[name='replyer']");
+		let modalInputReplyDate = modal.find("input[name='updateDate']");
+		
+		let modalModBtn = $("#modalModBtn");
+		let modalRemoveBtn = $("#modalRemoveBtn");
+		let modalRegisterBtn = $("#modalRegisterBtn");
+		
+		//new reply 팝업
+		$("#addReplyBtn").on("click", function(){
+			modal.find("input").val("");
+			modalInputReplyDate.closest("div").hide();
+			modal.find("button[id != 'modalCloseBtn']").hide();
+			
+			modalRegisterBtn.show();
+			
+			modal.modal("show");
+		});
+		
+		
+		//댓글 등록
+		modalRegisterBtn.on("click", function(){
+			let reply ={
+				reply: modalInputReply.val(),
+				replyer: modalInputReplyer.val(),
+				bno: bnoValue						
+			};
+			
+			replyService.add(reply, function(result){
+				alert(result);
+				
+				modal.find("input").val("");
+				modal.modal("hide");
+				showList(1);
+			});		
+			
+		});
+		
+		//댓글 클릭 이벤트 처리 --> 이벤트위험
+		$(".chat").on("click", "li", function(e){
+			let rno = $(this).data("rno");
+			//console.log(rno)
+			
+			replyService.get(rno, function(reply){
+				modalInputReply.val(reply.reply);
+				modalInputReplyer.val(reply.replyer);
+				modalInputReplyDate.val(replyService.displayTime( reply.updateDate)).attr("readonly", "readonly");
+				modal.data("rno", reply.rno);
+				
+				modal.find("button[id != 'modalCloseBtn']").hide();
+				modalModBtn.show();
+				modalRemoveBtn.show();
+				
+				modal.modal("show");
+			})
+		});
+		
+		//댓글 수정
+		modalModBtn.on("click", function(e){
+			let reply = {
+				rno: modal.data("rno"),
+				reply: modalInputReply.val()
+			};
+			
+			replyService.update(reply, function(result){
+				alert(result);
+				modal.modal("hide");
+				showList(1);
+			});	
+		});
+		
+		//댓글 삭제		
+		modalRemoveBtn.on("click", function(e){
+			let rno = modal.data("rno");
+			
+			replyService.remove(rno, function(result){
+				alert(result);
+				modal.modal("hide");
+				showList(1)
+			})
+			
+		});
+		
+		
+		
+	});	//end ready
+</script>
+
+<script>
+	$(document).ready(function(){
+		
+		/* console.log("---------------------------");
+		console.log("JS TEST");
+		
+		let bnoValue = '<c:out value="${board.bno}"/>'; */
+		
+		/*  replyService.add(
+			{reply:"JS TEST", replyer:"tester", bno:bnoValue},
+		
+			function(result){
+				alert("RESULT : " + result);
+			}
+		);  */
+		
+		/* replyService.getList(
+			{bno:bnoValue, page:1 },
+			function(list){
+				for(let i=0, len = list.length||0; i<len; i++){
+					console.log(list[i]);
+				}
+			}
+		 );  */
+		 
+		/* replyService.remove(
+			14,
+			function(msg){
+				if(msg == "success"){
+					alert("REMOVED");
+				}				
+			},
+			function(err){
+				alert("ERROR......");
+			}
+		); */
+		
+		/* replyService.update(
+			{
+				rno: 13,
+				reply: 'Modified reply....'
+			},
+			function(msg){
+				alert("수정 완료 : " + msg);
+			}
+		); */
+		
+		/* replyService.get(
+				13,
+				function(result){
+					console.log(result);
+				}				
+		); */
+		
+	})
+</script>
 
 <script>
 $(document).ready(function(){
