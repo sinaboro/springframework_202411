@@ -26,16 +26,19 @@ let replyService = (function(){
 
     //getList start
     function getList(param, callback, error){
-        console.log("js getList..........");
+        console.log("js getList.........." );
         let bno = param.bno;
         let page = param.page || 1;
+
+		console.log("------------------------");		
+        console.log(bno, ", ", page);
 
         $.ajax({
             type: 'get',
             url: "/replies/pages/" + bno + "/" + page,
-            success: function(result, status, xhr){
+            success: function(data, status, xhr){
                 if(callback){
-                    callback(result);
+                    callback(data.replyCnt, data.list);
                 }
             },
             error: function(xhr, status, er){

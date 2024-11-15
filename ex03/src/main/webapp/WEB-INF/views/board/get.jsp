@@ -65,14 +65,10 @@
             <!-- /.panel-heading -->
             <div class="panel-body">
                <ul class="chat">
-               		<!-- <li class="left clearfix" data-rno='12'>
-               			<div class="header">
-               				<strong class="primary-font">user00</strong>
-               				<small class="pull-right text-muted">2024-11-14</small>
-               			</div>
-               			<p>Good Job!!</p>
-               		</li> -->
                </ul>
+            </div>
+            
+            <div class="panel-footer">
             </div>
             <!-- /.panel-body -->
         </div>
@@ -133,12 +129,19 @@
 		showList(1);
 		
 		function showList(page) {
+			
 			replyService.getList(
 					
-				{ bno:bnoValue, page:page||1 },
+				{ bno:bnoValue, page:page || 1 },
 				
-				function(list){
+				function(replyCnt, list){
 				
+					if(page == -1){
+						pageNum = Math.ceil(replyCnt/10.0);
+						showList(pageNum);
+						return;
+					}
+					
 					let str= "";
 					
 					if(list== null || list.length == 0){
@@ -158,6 +161,8 @@
 					}
 					
 					replyUL.html(str);
+					
+					showReplyPage(replyCnt);  //페이징처리 호출
 				}
 			)
 		} // end showList
@@ -196,7 +201,8 @@
 				
 				modal.find("input").val("");
 				modal.modal("hide");
-				showList(1);
+//				showList(1);
+				showList(-1);
 			});		
 			
 		});
@@ -230,7 +236,7 @@
 			replyService.update(reply, function(result){
 				alert(result);
 				modal.modal("hide");
-				showList(1);
+				showList(pageNum);
 			});	
 		});
 		
@@ -241,12 +247,69 @@
 			replyService.remove(rno, function(result){
 				alert(result);
 				modal.modal("hide");
-				showList(1)
+				showList(pageNum);
 			})
 			
-		});
+		});   
 		
+		//페이징 처리
+		let pageNum = 1;
+		let replyPageFooter = $(".panel-footer");
 		
+		function showReplyPage(replyCnt){
+		
+			let endNum = Math.ceil(pageNum /10.0) * 10;
+			let startNum = endNum - 9;
+			
+			let prev = startNum != 1;  //이전버튼
+			let next = false;          //다음버튼
+			
+			//real page( 끝 페이지 재계산)
+			if(endNum * 10 >= replyCnt){
+				endNum = Math.ceil(replyCnt/10.0);
+			}
+			
+			//next버튼 유무 조건?
+			if(endNum *10 < replyCnt){ 
+				next = true;
+			}
+			
+			let str = "<ul class='pagination pull-right'>";
+			
+			if(prev){
+				str+= "<li class='page-item'>"
+				str+= "<a class='page-link' href='"+(strNum-1)+"'>Previous</a></li>";
+			}
+			
+			for(let i=startNum; i<=endNum; i++){
+				let active = pageNum == i? "active":"";
+				
+				str+= "<li class='page-item "+active+"'><a class='page-link' href='"+i+"'>" + i + "</a></li>";
+			}
+			
+			if(next){
+				str+= "<li class='page-item'>"
+				str+= "<a class='page-link' href='"+(endNum+1)+"'>Next</a></li>";
+			}
+			
+			str+= "</ul>";
+			
+			console.log(str);
+			
+			replyPageFooter.html(str);
+			
+		}  //end showReplyPage
+		
+		replyPageFooter.on("click", "li a", function(e){
+			e.preventDefault();
+			
+			let targetPageNum = $(this).attr("href");
+			
+			pageNum = targetPageNum;
+			
+			showList(pageNum);
+			
+		}); //end replyPageFooter
 		
 	});	//end ready
 </script>
